@@ -1,0 +1,146 @@
+-- ============================================
+-- СОЗДАНИЕ ТАБЛИЦ
+-- ============================================
+
+-- Таблица пользователей
+CREATE TABLE IF NOT EXISTS `users` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `email` VARCHAR(255) UNIQUE NOT NULL,
+    `password` VARCHAR(255) NOT NULL,
+    `name` VARCHAR(100) NOT NULL,
+    `phone` VARCHAR(20),
+    `role` ENUM('user', 'admin') DEFAULT 'user',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица товаров
+CREATE TABLE IF NOT EXISTS `products` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(255) NOT NULL,
+    `description` TEXT,
+    `price` DECIMAL(10,2) NOT NULL,
+    `brand` VARCHAR(100),
+    `category` VARCHAR(100),
+    `color` VARCHAR(50),
+    `material` VARCHAR(100),
+    `status` ENUM('active', 'inactive') DEFAULT 'active',
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица изображений товаров
+CREATE TABLE IF NOT EXISTS `product_images` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `product_id` INT NOT NULL,
+    `image_url` VARCHAR(255) DEFAULT 'default.jpg',
+    `is_main` TINYINT(1) DEFAULT 1,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица размеров
+CREATE TABLE IF NOT EXISTS `product_sizes` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `product_id` INT NOT NULL,
+    `size` DECIMAL(5,1) NOT NULL,
+    `quantity` INT NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица корзины
+CREATE TABLE IF NOT EXISTS `cart_items` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `product_id` INT NOT NULL,
+    `size` DECIMAL(5,1) NOT NULL,
+    `quantity` INT NOT NULL DEFAULT 1,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица заказов
+CREATE TABLE IF NOT EXISTS `orders` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `user_id` INT NOT NULL,
+    `shipping_address` TEXT NOT NULL,
+    `payment_method` ENUM('cash', 'card') DEFAULT 'cash',
+    `status` ENUM('new', 'processing', 'completed', 'cancelled') DEFAULT 'new',
+    `total_amount` DECIMAL(10,2) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Таблица позиций заказа
+CREATE TABLE IF NOT EXISTS `order_items` (
+    `id` INT PRIMARY KEY AUTO_INCREMENT,
+    `order_id` INT NOT NULL,
+    `product_id` INT NOT NULL,
+    `size` DECIMAL(5,1) NOT NULL,
+    `quantity` INT NOT NULL,
+    `price` DECIMAL(10,2) NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- ЗАПОЛНЕНИЕ ДАННЫМИ
+-- ============================================
+
+-- Пользователи
+INSERT INTO `users` (`email`, `password`, `name`, `phone`, `role`) VALUES
+('admin@mail.ru', MD5('admin123'), 'Администратор', '+7 (999) 123-45-67', 'admin'),
+('user@mail.ru', MD5('user123'), 'Иван Иванов', '+7 (912) 345-67-89', 'user'),
+('test@mail.ru', MD5('test123'), 'Тест Тестов', '+7 (923) 456-78-90', 'user');
+
+-- Товары (8 популярных моделей обуви)
+INSERT INTO `products` (`name`, `description`, `price`, `brand`, `category`, `color`, `material`, `status`) VALUES
+('Кроссовки Nike Air Max', 'Спортивные кроссовки для бега', 12990.00, 'Nike', 'Кроссовки', 'Черный', 'Сетка, кожа', 'active'),
+('Кроссовки Adidas Ultraboost', 'Удобные кроссовки для фитнеса', 14990.00, 'Adidas', 'Кроссовки', 'Белый', 'Сетка', 'active'),
+('Ботинки Timberland', 'Водонепроницаемые ботинки', 19990.00, 'Timberland', 'Ботинки', 'Желтый', 'Кожа', 'active'),
+('Туфли Geox', 'Кожаные туфли для офиса', 8990.00, 'Geox', 'Туфли', 'Черный', 'Кожа', 'active'),
+('Балетки Rieker', 'Удобные балетки для женщин', 5990.00, 'Rieker', 'Балетки', 'Бежевый', 'Кожа', 'active'),
+('Сапоги Ecco', 'Зимние сапоги на меху', 15990.00, 'Ecco', 'Сапоги', 'Коричневый', 'Кожа', 'active'),
+('Кеды Converse', 'Классические кеды', 4990.00, 'Converse', 'Кеды', 'Черный', 'Ткань', 'active'),
+('Сандалии Birkenstock', 'Ортопедические сандалии', 8990.00, 'Birkenstock', 'Сандалии', 'Коричневый', 'Кожа', 'active');
+
+-- Изображения товаров
+INSERT INTO `product_images` (`product_id`, `image_url`, `is_main`) VALUES
+(1, 'nike_air_max.jpg', 1),
+(2, 'adidas_ultraboost.jpg', 1),
+(3, 'timberland_boots.jpg', 1),
+(4, 'geox_shoes.jpg', 1),
+(5, 'rieker_ballet.jpg', 1),
+(6, 'ecco_boots.jpg', 1),
+(7, 'converse_shoes.jpg', 1),
+(8, 'birkenstock_sandals.jpg', 1);
+
+-- Размеры и количество (для каждого товара 4 размера)
+INSERT INTO `product_sizes` (`product_id`, `size`, `quantity`) VALUES
+-- Nike Air Max
+(1, 40.0, 5), (1, 41.0, 8), (1, 42.0, 10), (1, 43.0, 7),
+-- Adidas Ultraboost
+(2, 39.0, 6), (2, 40.0, 9), (2, 41.0, 5), (2, 42.0, 8),
+-- Timberland
+(3, 41.0, 4), (3, 42.0, 6), (3, 43.0, 3), (3, 44.0, 5),
+-- Geox
+(4, 40.0, 7), (4, 41.0, 10), (4, 42.0, 8), (4, 43.0, 6),
+-- Rieker
+(5, 36.0, 12), (5, 37.0, 15), (5, 38.0, 10), (5, 39.0, 8),
+-- Ecco
+(6, 37.0, 5), (6, 38.0, 7), (6, 39.0, 4), (6, 40.0, 6),
+-- Converse
+(7, 39.0, 15), (7, 40.0, 20), (7, 41.0, 18), (7, 42.0, 12),
+-- Birkenstock
+(8, 38.0, 8), (8, 39.0, 10), (8, 40.0, 7), (8, 41.0, 5);
+
+-- Тестовый заказ
+INSERT INTO `orders` (`user_id`, `shipping_address`, `payment_method`, `status`, `total_amount`) VALUES
+(2, 'г. Москва, ул. Ленина, д. 10, кв. 25', 'card', 'completed', 19990.00),
+(3, 'г. Санкт-Петербург, пр. Невский, д. 45', 'cash', 'processing', 8990.00);
+
+-- Позиции заказа
+INSERT INTO `order_items` (`order_id`, `product_id`, `size`, `quantity`, `price`) VALUES
+(1, 3, 42.0, 1, 19990.00),
+(2, 4, 41.0, 1, 8990.00);
+
+-- Тестовая корзина
+INSERT INTO `cart_items` (`user_id`, `product_id`, `size`, `quantity`) VALUES
+(2, 1, 42.0, 1),
+(2, 7, 40.0, 2);
+
+*/
