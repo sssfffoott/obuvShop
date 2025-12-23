@@ -1,0 +1,28 @@
+ /root
+├── /assets
+│   ├── /css
+│   ├── /js
+│   └── /images
+├── /includes
+│   ├── config.php
+│   ├── database.php
+│   ├── auth.php
+│   ├── cart.php
+│   └── functions.php
+|   └── footer.php
+|   └── header.php
+├── /admin
+│   ├── dashboard.php
+│   ├── products.php
+│   └── users.php
+├── /api (AJAX endpoints)
+├── index.php
+├── catalog.php
+├── product.php
+├── cart.php
+├── checkout.php
+├── login.php
+├── register.php
+├── profile.php
+└── orders.php
+└── 
